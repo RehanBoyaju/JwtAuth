@@ -18,9 +18,4 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Members\Update\ResetPassword\" />
-    <Folder Include="Members\Update\UpdateMember\" />
-  </ItemGroup>
-
 </Project>

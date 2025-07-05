@@ -36,6 +36,9 @@ namespace Domain.Entities
 
         public DateTime? ModifiedOnUtc { get; set; }
 
+        public ICollection<PasswordResetToken> PasswordResetTokens { get; private set; } = new List<PasswordResetToken>();
+
+
         public static Member Create(
             Guid id,
             Email email,
@@ -58,14 +61,14 @@ namespace Domain.Entities
             HashedPassword = hashedPassword;
             ModifiedOnUtc = DateTime.UtcNow;
         }
-        public void ChangeName(FirstName firstName, LastName lastName)
+        public void Update(Email email,FirstName firstName, LastName lastName)
         {
-            if (!FirstName.Equals(firstName) || !LastName.Equals(lastName))
+            if (!Email.Equals(email) || !FirstName.Equals(firstName) || !LastName.Equals(lastName))
             {
                 //Systemwide updates here
                 ModifiedOnUtc = DateTime.UtcNow;
             }
-
+            Email = email;
             FirstName = firstName;
             LastName = lastName;
         }

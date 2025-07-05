@@ -87,12 +87,22 @@ namespace Domain.Errors
                 "Password is empty");
 
             public static readonly Error TooShort = new(
-                "Email.TooShort",
-                "Email is too short");
+                "Password.TooShort",
+                "Password is too short");
 
             public static readonly Error InvalidFormat = new(
                 "Password.InvalidFormat",
                 "Password format is invalid");
+
+            public static readonly Error SamePassword = new(
+                "Password.Same",
+                "New password can't be same as old password");
+        }
+        public static class PasswordResetToken
+        {
+            public static readonly Error Invalid = new("Token.NotFound", "Token is invalid");
+
+            public static readonly Error Expired = new("Token.Expired", "Token has already expired. Please request a new token");
         }
     }
 }

@@ -25,7 +25,11 @@ namespace Persistence.Configurations
             builder.Property(x => x.LastName)
                 .HasConversion(x => x.Value, v => LastName.Create(v).Value)
                 .HasMaxLength(LastName.MaxLength);
-
+            builder.HasMany(x => x.PasswordResetTokens)
+                .WithOne(p => p.Member)
+                .HasForeignKey(p=>p.MemberId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade); 
 
         }
     }

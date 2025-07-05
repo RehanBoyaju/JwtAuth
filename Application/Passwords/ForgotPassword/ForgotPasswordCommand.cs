@@ -5,7 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Members.Update.UpdatePassword
+namespace Application.Passwords.ForgotPassword
 {
-    public record UpdatePasswordCommand(Guid MemberId,string OldPassword, string NewPassword) : ICommand;
+    public record ForgotPasswordCommand(string Email):ICommand<string>;
+
 }

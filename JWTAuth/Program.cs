@@ -1,17 +1,20 @@
 using Application.Abstractions;
+using Application.Behaviours;
 using Application.Services;
 using Domain.Entities;
 using Domain.Repository;
 using FluentValidation;
+using FluentValidation.AspNetCore;
+using Infrastructure.Services;
 using JWTAuth.OptionsSetup;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Persistence;
 using Persistence.Repositories;
 using Scrutor;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace JWTAuth
 {
@@ -27,6 +30,9 @@ namespace JWTAuth
             builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 
             builder.Services.AddScoped<IPasswordService, PasswordService>();
+
+            builder.Services.AddScoped<IEmailService, EmailService>();
+
             //can add redis here
 
             builder.Services.AddScoped<IPasswordHasher<Member>, PasswordHasher<Member>>();
@@ -46,7 +52,29 @@ namespace JWTAuth
 
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Application.AssemblyReference.Assembly));
 
+            builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
+
+
             builder.Services.AddValidatorsFromAssembly(Application.AssemblyReference.Assembly,includeInternalTypes: true);
+
+            builder.Services.AddFluentValidationAutoValidation();
+            builder.Services.AddFluentValidationClientsideAdapters();
+
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var problemDetails = new ValidationProblemDetails(context.ModelState)
+                    {
+                        Status = StatusCodes.Status400BadRequest,
+                        Title = "Validation Error",
+                        Detail = "Check the 'errors' field for more info.",
+                        Instance = context.HttpContext.Request.Path
+                    };
+
+                    return new BadRequestObjectResult(problemDetails);
+                };
+            });
 
 
 
@@ -56,6 +84,7 @@ namespace JWTAuth
 
             builder.Services.AddControllers()
                 .AddApplicationPart(Presentation.AssemblyReference.Assembly);
+                
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

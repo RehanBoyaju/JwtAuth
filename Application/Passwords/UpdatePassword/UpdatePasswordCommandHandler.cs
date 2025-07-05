@@ -4,6 +4,7 @@ using Domain.Entities;
 using Domain.Errors;
 using Domain.Repository;
 using Domain.Shared;
+using Domain.ValueObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -14,20 +15,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace Application.Members.Update.UpdatePassword
+namespace Application.Passwords.UpdatePassword
 {
     internal sealed class UpdatePasswordCommandHandler : ICommandHandler<UpdatePasswordCommand>
     {
         private readonly IMemberRepository _memberRepository;
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IPasswordService _passwordService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        //private readonly IHttpContextAccessor _httpContextAccessor;
         public UpdatePasswordCommandHandler(IMemberRepository memberRepository, IUnitOfWork unitOfWork, IPasswordService passwordService,IHttpContextAccessor httpContextAccessor)
         {
             _memberRepository = memberRepository;
-            _unitOfWork = unitOfWork;
             _passwordService = passwordService;
-            _httpContextAccessor = httpContextAccessor;
+            //_httpContextAccessor = httpContextAccessor;
         }
         public async Task<Result> Handle(UpdatePasswordCommand request, CancellationToken cancellationToken)
         {
@@ -37,7 +36,8 @@ namespace Application.Members.Update.UpdatePassword
 
             var member = await _memberRepository.GetByIdAsync(request.MemberId, cancellationToken);
 
-            if(member == null)
+
+            if (member == null)
             {
                 return Result.Failure(DomainErrors.Member.NotFound(request.MemberId));
             }

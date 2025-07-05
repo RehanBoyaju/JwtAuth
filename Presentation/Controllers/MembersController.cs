@@ -2,7 +2,11 @@
 using Application.Members.GetMemberById;
 using Application.Members.Login;
 using Application.Members.Register;
-using Application.Members.Update.UpdatePassword;
+using Application.Members.Update.UpdateMember;
+using Application.Passwords.ForgotPassword;
+using Application.Passwords.ResetPassword;
+using Application.Passwords.UpdatePassword;
+using Application.Passwords.VerifyToken;
 using Domain.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -70,16 +74,56 @@ namespace Presentation.Controllers
             return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
         }
 
+       
         [Authorize]
-        [HttpPut("change-password")]
-        public async Task<IActionResult> UpdatePasswordAsync([FromBody] UpdatePasswordRequest request,CancellationToken cancellationToken)
+        [HttpPut("Update/{id:guid}")]
+        public async Task<IActionResult> UpdateMemberAsync(Guid id,[FromBody] UpdateMemberRequest request, CancellationToken cancellationToken)
+        {
+
+            var command = new UpdateMemberCommand(id,request.Email, request.FirstName, request.LastName);
+
+
+            Result result = await Sender.Send(command, cancellationToken);
+
+            if (result.IsFailure)
+            {
+                return HandleFailure(result);
+            }
+
+            return NoContent();
+
+        }
+
+        [Authorize]
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> DeleteAsync(CancellationToken cancellationToken)
+        {
+            var id = User.FindFirst(u => u.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if(string.IsNullOrEmpty(id)) { 
+                return Unauthorized(); 
+            }
+            var command = new DeleteCommand(new Guid(id));
+
+            Result response = await Sender.Send(command,cancellationToken);
+
+            if (response.IsFailure)
+            {
+                return HandleFailure(response);
+            }
+            return NoContent();
+        }
+
+        [Authorize]
+        [HttpPut("Update-Password")]
+        public async Task<IActionResult> UpdatePasswordAsync([FromBody] UpdatePasswordRequest request, CancellationToken cancellationToken)
         {
             var memberId = User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(memberId))
             {
                 return Unauthorized();
             }
-            var command = new UpdatePasswordCommand(new Guid(memberId),request.OldPassword,request.NewPassword);
+            var command = new UpdatePasswordCommand(new Guid(memberId), request.OldPassword, request.NewPassword);
 
             var response = await Sender.Send(command, cancellationToken);
 
@@ -90,20 +134,50 @@ namespace Presentation.Controllers
 
             return Ok("Password Updated Successfully");
 
-            
-        }
-        [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> DeleteAsync(Guid id,CancellationToken cancellationToken)
-        {
-            var command = new DeleteCommand(id);
 
-            Result response = await Sender.Send(command,cancellationToken);
+        }
+        
+        [HttpPost("Forgot-Password")]
+        public async Task<IActionResult> ForgotPasswordAsync( [FromBody] ForgotPasswordRequest request,CancellationToken cancellationToken)
+        {
+            
+            var command = new ForgotPasswordCommand(request.Email);
+
+            var response = await Sender.Send(command, cancellationToken);
 
             if (response.IsFailure)
             {
                 return HandleFailure(response);
             }
-            return NoContent();
+            return Ok(response.Value);
+
+        }
+        [HttpPost("Verify-Reset-Token")]
+        public async Task<IActionResult> VerifyResetTokenAsync([FromBody] VerifyTokenRequest request,CancellationToken cancellationToken)
+        {
+            var command = new VerifyTokenCommand(request.Email,request.Token);
+
+            var response = await Sender.Send(command, cancellationToken);
+
+            if (response.IsFailure)
+            {
+                return HandleFailure(response);
+            }
+            return Ok("Token is valid");
+        }
+
+        [HttpPut("Reset-Password")]
+        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
+        {
+            var command = new ResetPasswordCommand(request.Email, request.Token,request.NewPassword);
+
+            var response = await Sender.Send(command, cancellationToken);
+
+            if (response.IsFailure)
+            {
+                return HandleFailure(response);
+            }
+            return Ok(response.Value);
         }
     }
 }

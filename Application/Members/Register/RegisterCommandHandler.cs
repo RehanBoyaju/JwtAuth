@@ -1,7 +1,6 @@
 ﻿using Application.Abstractions;
 using Application.Abstractions.Messaging;
 using Application.Members.Login;
-using Application.Services;
 using Domain.Entities;
 using Domain.Errors;
 using Domain.Repository;
@@ -59,8 +58,8 @@ namespace Application.Members.Register
                 lastNameResult.Value
                 );
 
-            var hashedPassword = _passwordService.HashPassword(member,request.Password);
-            member.SetPassword(hashedPassword);
+            var hashedResult = _passwordService.HashPassword(member,request.Password);
+            member.SetPassword(hashedResult.Value);
 
             _memberRepository.Add(member);
 

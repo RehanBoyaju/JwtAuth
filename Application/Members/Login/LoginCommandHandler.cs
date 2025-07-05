@@ -1,6 +1,5 @@
 ﻿using Application.Abstractions;
 using Application.Abstractions.Messaging;
-using Application.Members.Update.UpdatePassword;
 using Domain.Entities;
 using Domain.Errors;
 using Domain.Repository;
@@ -39,7 +38,7 @@ namespace Application.Members.Login
                 return Result.Failure<string>(email.Error);
             }
 
-            var password = Password.Create(request.Password);
+            var password = Domain.ValueObjects.Password.Create(request.Password);
 
             if (password.IsFailure)
             {
@@ -60,7 +59,7 @@ namespace Application.Members.Login
 
             var verifyPassword = await _passwordService.VerifyPasswordAsync(member,password.Value.Value);
 
-            if (!verifyPassword)
+            if (!verifyPassword.Value)
             {
                 return Result.Failure<string>(DomainErrors.Member.InvalidCredentials);
             }

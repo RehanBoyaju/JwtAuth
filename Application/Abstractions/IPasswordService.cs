@@ -10,8 +10,12 @@ namespace Application.Abstractions
 {
     public interface IPasswordService
     {
-        string HashPassword(Member member, string password);
-        Task<bool> VerifyPasswordAsync(Member member, string providedPassword);
+        Result<string> HashPassword(Member member, string password);
+        Task<Result<bool>> VerifyPasswordAsync(Member member, string providedPassword,CancellationToken cancellationToken = default);
         Task<Result> ChangePasswordAsync(Member member,string oldPassword,string newPassword,CancellationToken cancellationToken=default);
+        Task<Result<string>> HashResetToken(Member member,string token);
+        Task<Result<PasswordResetToken>> VerifyTokenAsync(Member member, string token,CancellationToken cancellationToken = default);
+        Task<Result> ResetPasswordAsync(Member member, string newPassword, PasswordResetToken token, CancellationToken cancellationToken = default);
+
     }
 }

@@ -8,6 +8,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+
 
 namespace Presentation.Controllers
 {
@@ -48,12 +50,14 @@ namespace Presentation.Controllers
                 Title = title,
                 Type = error.Code,
                 Detail = error.Message,
-                Status = status
+                Status = status,
             };
 
-            //TODO: Address this problemDetails
-            //if (errors is not null)
-            //    problemDetails.Extensions[nameof(errors)] = errors;
+            if (errors is not null )
+            {
+                problemDetails.Extensions.Add(nameof(errors), errors);
+            }
+
 
             return problemDetails;
         }

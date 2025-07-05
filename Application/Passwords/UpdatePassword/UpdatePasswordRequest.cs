@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Members.Update.UpdatePassword
+namespace Application.Passwords.UpdatePassword
 {
     public record UpdatePasswordRequest(string OldPassword,string NewPassword);
 }

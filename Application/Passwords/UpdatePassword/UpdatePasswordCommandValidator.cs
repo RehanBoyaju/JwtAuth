@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Members.Update.UpdatePassword
+namespace Application.Passwords.UpdatePassword
 {
-    internal class UpdatePasswordCommandValidator : AbstractValidator<UpdatePasswordCommand>
+    public class UpdatePasswordCommandValidator : AbstractValidator<UpdatePasswordCommand>
     {
         public UpdatePasswordCommandValidator()
         {

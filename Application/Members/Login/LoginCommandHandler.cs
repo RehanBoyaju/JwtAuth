@@ -59,9 +59,9 @@ namespace Application.Members.Login
 
             var verifyPassword = await _passwordService.VerifyPasswordAsync(member,password.Value.Value);
 
-            if (!verifyPassword.Value)
+            if (verifyPassword.IsFailure)
             {
-                return Result.Failure<string>(DomainErrors.Member.InvalidCredentials);
+                return Result.Failure<string>(verifyPassword.Error);
             }
 
            

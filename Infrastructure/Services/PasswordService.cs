@@ -96,7 +96,7 @@ namespace Application.Services
             var verify = _hasher.VerifyHashedPassword(member, member.HashedPassword, providedPassword);
             if(verify == PasswordVerificationResult.Success)
             {
-                return true;
+                return Result.Success(true);
             }
             if(verify == PasswordVerificationResult.SuccessRehashNeeded)
             {
